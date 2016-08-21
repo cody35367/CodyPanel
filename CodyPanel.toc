@@ -1,0 +1,8 @@
+## Interface: 70000
+## Author: cody35367
+## Title: Cody's Panel
+## Notes: This addon creates a panel that shows random stats and toggleable items that Cody is interested in. This addon also makes changes the Blizz UI to Cody's liking.
+
+dev-init.lua
+StaticBlizzUIChanges.lua
+CodyPanel.lua
