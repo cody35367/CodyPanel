@@ -2,8 +2,13 @@
 local baseFrame = {}
 local UpdateInterval = 0.5
 local TimeSinceLastUpdate = 0
-local starting_gold = GetMoney()
-local starting_time = GetTime()
+local starting_gold = 0
+local starting_time = 0
+
+local function init_start_values()
+  starting_gold = GetMoney()
+  starting_time = GetTime()
+end
 
 local function create_baseFrame()
   baseFrame=CreateFrame("Frame","CodyPanelFrame",UIParent,"BasicFrameTemplate")
@@ -21,16 +26,33 @@ local function create_baseFrame()
   baseFrame.title:SetFontObject("GameFontHighlight")
   baseFrame.title:SetPoint("CENTER",baseFrame.TitleBg) -- ,"LEFT",5,0 last 3 make a margin between left and text
   baseFrame.title:SetText("Cody's panel")
-  --defaul to hiding my info pane
+  -- defaul to hiding my info pane. The below hide is before the event handle is added, so should not trigger below.
   baseFrame:Hide()
 end
 
+local function loadUserWindowPref()
+  if CodyPanelShowBool == nil then
+    CodyPanelShowBool=false
+  end
+  if CodyPanelShowBool then
+    baseFrame:Show()
+  end
+end
+
+-- use /cody to open and close windows and it will update prefs
 local function toggle_window()
   if baseFrame:IsVisible() then
     baseFrame:Hide()
   else
     baseFrame:Show()
+    CodyPanelShowBool=true
   end
+end
+
+-- update user prefs if user manually closes with X
+local function PanelHideEvent()
+  CodyPanelShowBool=false
+  --print("Hide event!")
 end
 
 local function toggle_sound()
@@ -97,6 +119,7 @@ local function update_Info()
     percent_speed = string.format("%.2f", percent_speed)
     mount_speed = string.format("%.2f", mount_speed)
     net_gold = string.format("%dg %ds %dc",net_gold / 100 / 100, (net_gold / 100) % 100, net_gold % 100)
+    --net_gold = GetCoinText(net_gold) -- cannot handle negitive values and print full name for each unit
     net_time = SecondsToTime(net_time)
     wow_uptime = SecondsToTime(wow_uptime)
     frame_rate = string.format("%.2f", frame_rate)
@@ -119,7 +142,7 @@ local function update_Info()
     baseFrame.line11:SetText(frame_rate.." fps")
 end
 
--- update loop
+-- update loop call on game refresh
 local function OnUpdate(self, elapsed)
   TimeSinceLastUpdate = TimeSinceLastUpdate + elapsed
   if (TimeSinceLastUpdate > UpdateInterval) then
@@ -128,8 +151,29 @@ local function OnUpdate(self, elapsed)
   end
 end
 
+-- general Event handle switch
+local function OnEvent(self, event, ...)
+  if event == "PLAYER_ENTERING_WORLD" then
+    init_start_values()
+  elseif event == "ADDON_LOADED" and ... == "CodyPanel"  then
+    loadUserWindowPref()
+  end
+end
+
+local function setupScripts()
+  -- register client events and point to event switch
+  baseFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+  baseFrame:RegisterEvent("ADDON_LOADED")
+  baseFrame:SetScript("OnEvent",OnEvent)
+  -- hide event
+  baseFrame:SetScript("OnHide",PanelHideEvent)
+  -- register the update only after everything is setup
+  -- this points to my OnUpdate function above. I named this the same but did not have to.
+  baseFrame:SetScript("OnUpdate",OnUpdate)
+end
+
 --- execute order starting here ---
 create_baseFrame()
 add_slash_cmds()
 add_info()
-baseFrame:SetScript("OnUpdate",OnUpdate) -- this points to my OnUpdate function above. I named this the same but did not have to.
+setupScripts()
