@@ -2,7 +2,7 @@
 ## Author: cody35367
 ## Title: Cody's Panel
 ## Notes: Cody stats and dev panel
-## SavedVariablesPerCharacter: CodyPanelShowBool
+## SavedVariablesPerCharacter: CodyPanelShowBool, CodyPanelPrevNetGold, CodyPanelPrevNetTime
 
 dev-init.lua
 StaticBlizzUIChanges.lua

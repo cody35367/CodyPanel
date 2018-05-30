@@ -4,9 +4,18 @@ local UpdateInterval = 0.5
 local TimeSinceLastUpdate = 0
 local starting_gold = 0
 local starting_time = 0
+local current_gold = 0
 
 local function init_start_values()
+  -- first time varible saves
+  if (CodyPanelPrevNetGold == nil) then
+    CodyPanelPrevNetGold = 0
+  end
+  if (CodyPanelPrevNetTime == nil) then
+    CodyPanelPrevNetTime = 0
+  end
   starting_gold = GetMoney()
+  current_gold = GetMoney()
   starting_time = GetTime()
 end
 
@@ -39,6 +48,12 @@ local function loadUserWindowPref()
   end
 end
 
+local function save_session_vals()
+  -- note, we are using current_gold here instead of GetMoney() because when this is called, the player's gold is gone and I need the last good value.
+  CodyPanelPrevNetGold = (current_gold - starting_gold) + CodyPanelPrevNetGold
+  CodyPanelPrevNetTime = (GetTime() - starting_time) + CodyPanelPrevNetTime
+end
+
 -- use /cody to open and close windows and it will update prefs
 local function toggle_window()
   if baseFrame:IsVisible() then
@@ -57,6 +72,13 @@ end
 
 local function toggle_sound()
   SetCVar("Sound_EnableAllSound",GetCVar("Sound_EnableAllSound")=="0" and 1 or 0)
+end
+
+local function reset_session()
+  starting_gold = GetMoney()
+  starting_time = GetTime()
+  CodyPanelPrevNetGold = 0
+  CodyPanelPrevNetTime = 0
 end
 
 local function add_info()
@@ -92,11 +114,16 @@ local function add_info()
   baseFrame.line11:SetPoint("CENTER",baseFrame,"TOP",0,-180)
   baseFrame.line11:SetText("fps")
   -- 12th line
-  baseFrame.line12 = CreateFrame("Button",nil,baseFrame,"GameMenuButtonTemplate")
-  baseFrame.line12:SetPoint("CENTER",baseFrame,"TOP",0,-195)
-  baseFrame.line12:SetText("Toggle sound")
-  baseFrame.line12:SetScript("OnClick",toggle_sound)
-  baseFrame.line12:SetSize(100,15)
+  baseFrame.line12_1 = CreateFrame("Button",nil,baseFrame,"GameMenuButtonTemplate")
+  baseFrame.line12_1:SetPoint("CENTER",baseFrame,"TOP",-50,-195)
+  baseFrame.line12_1:SetText("Toggle Sound")
+  baseFrame.line12_1:SetScript("OnClick",toggle_sound)
+  baseFrame.line12_1:SetSize(100,15)
+  baseFrame.line12_2 = CreateFrame("Button",nil,baseFrame,"GameMenuButtonTemplate")
+  baseFrame.line12_2:SetPoint("CENTER",baseFrame,"TOP",50,-195)
+  baseFrame.line12_2:SetText("Reset Session")
+  baseFrame.line12_2:SetScript("OnClick",reset_session)
+  baseFrame.line12_2:SetSize(100,15)
 end
 
 local function add_slash_cmds()
@@ -105,20 +132,32 @@ local function add_slash_cmds()
   SlashCmdList["CodyPanel_SLASHCMD"] = toggle_window -- Note that I did not include '()' because I need to pass a refernce to my function and not call it
 end
 
+local function make_gold_str(gold_int)
+  local copper=abs(gold_int)%100
+  local silver=(abs(gold_int)/100)%100
+  local gold=(gold_int/100)/100
+  if (gold >= 0) then
+    return string.format("%ig %is %ic",gold,silver,copper)
+  else
+    return string.format("- %ig %is %ic",gold/-1,silver,copper)
+  end
+end
+
 local function update_Info()
     --get values
     local speed = GetUnitSpeed("player")
     local percent_speed = speed/BASE_MOVEMENT_SPEED*100
     local mount_speed = percent_speed - 100
-    local net_gold =  GetMoney() - starting_gold
-    local net_time = GetTime() - starting_time
+    current_gold = GetMoney()
+    local net_gold = (GetMoney() - starting_gold) + CodyPanelPrevNetGold
+    local net_time = (GetTime() - starting_time) + CodyPanelPrevNetTime
     local wow_uptime = GetSessionTime()
     local frame_rate = GetFramerate()
     --fix strings
     speed = string.format("%.2f", speed)
     percent_speed = string.format("%.2f", percent_speed)
     mount_speed = string.format("%.2f", mount_speed)
-    net_gold = string.format("%dg %ds %dc",net_gold / 100 / 100, (net_gold / 100) % 100, net_gold % 100)
+    net_gold = make_gold_str(net_gold)
     --net_gold = GetCoinText(net_gold) -- cannot handle negitive values and print full name for each unit
     net_time = SecondsToTime(net_time)
     wow_uptime = SecondsToTime(wow_uptime)
@@ -157,6 +196,8 @@ local function OnEvent(self, event, ...)
     init_start_values()
   elseif event == "ADDON_LOADED" and ... == "CodyPanel"  then
     loadUserWindowPref()
+  elseif event == "PLAYER_LOGOUT" then
+    save_session_vals()
   end
 end
 
@@ -164,6 +205,7 @@ local function setupScripts()
   -- register client events and point to event switch
   baseFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
   baseFrame:RegisterEvent("ADDON_LOADED")
+  baseFrame:RegisterEvent("PLAYER_LOGOUT")
   baseFrame:SetScript("OnEvent",OnEvent)
   -- hide event
   baseFrame:SetScript("OnHide",PanelHideEvent)
