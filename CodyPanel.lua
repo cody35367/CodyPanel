@@ -14,8 +14,8 @@ local function init_start_values()
   if (CodyPanelPrevNetTime == nil) then
     CodyPanelPrevNetTime = 0
   end
-  starting_gold = GetMoney()
   current_gold = GetMoney()
+  starting_gold = current_gold
   starting_time = GetTime()
 end
 
@@ -48,6 +48,10 @@ local function loadUserWindowPref()
   end
 end
 
+local function update_money_val()
+  current_gold = GetMoney()
+end
+
 local function save_session_vals()
   -- note, we are using current_gold here instead of GetMoney() because when this is called, the player's gold is gone and I need the last good value.
   CodyPanelPrevNetGold = (current_gold - starting_gold) + CodyPanelPrevNetGold
@@ -75,7 +79,7 @@ local function toggle_sound()
 end
 
 local function reset_session()
-  starting_gold = GetMoney()
+  starting_gold = current_gold
   starting_time = GetTime()
   CodyPanelPrevNetGold = 0
   CodyPanelPrevNetTime = 0
@@ -148,8 +152,7 @@ local function update_Info()
     local speed = GetUnitSpeed("player")
     local percent_speed = speed/BASE_MOVEMENT_SPEED*100
     local mount_speed = percent_speed - 100
-    current_gold = GetMoney()
-    local net_gold = (GetMoney() - starting_gold) + CodyPanelPrevNetGold
+    local net_gold = (current_gold - starting_gold) + CodyPanelPrevNetGold
     local net_time = (GetTime() - starting_time) + CodyPanelPrevNetTime
     local wow_uptime = GetSessionTime()
     local frame_rate = GetFramerate()
@@ -198,6 +201,8 @@ local function OnEvent(self, event, ...)
     loadUserWindowPref()
   elseif event == "PLAYER_LOGOUT" then
     save_session_vals()
+  elseif event == "PLAYER_MONEY" then
+    update_money_val()
   end
 end
 
@@ -206,6 +211,7 @@ local function setupScripts()
   baseFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
   baseFrame:RegisterEvent("ADDON_LOADED")
   baseFrame:RegisterEvent("PLAYER_LOGOUT")
+  baseFrame:RegisterEvent("PLAYER_MONEY")
   baseFrame:SetScript("OnEvent",OnEvent)
   -- hide event
   baseFrame:SetScript("OnHide",PanelHideEvent)
