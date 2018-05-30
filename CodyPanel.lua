@@ -1,10 +1,10 @@
 -- initialize local varible for this script
-local baseFrame = {}
-local UpdateInterval = 0.5
-local TimeSinceLastUpdate = 0
-local starting_gold = 0
-local starting_time = 0
-local current_gold = 0
+local BASE_FRAME = {}
+local UPDATE_INTERVAL = 0.5
+local TIME_SINCE_LAST_UPDATE = 0
+local STARTING_GOLD = 0
+local STARTING_TIME = 0
+local CURRENT_GOLD = 0
 
 local function init_start_values()
   -- first time varible saves
@@ -14,29 +14,29 @@ local function init_start_values()
   if (CodyPanelPrevNetTime == nil) then
     CodyPanelPrevNetTime = 0
   end
-  current_gold = GetMoney()
-  starting_gold = current_gold
-  starting_time = GetTime()
+  CURRENT_GOLD = GetMoney()
+  STARTING_GOLD = CURRENT_GOLD
+  STARTING_TIME = GetTime()
 end
 
 local function create_baseFrame()
-  baseFrame=CreateFrame("Frame","CodyPanelFrame",UIParent,"BasicFrameTemplate")
+  BASE_FRAME=CreateFrame("Frame","CodyPanelFrame",UIParent,"BasicFrameTemplate")
   --make panel moveable
-  baseFrame:EnableMouse(true)
-  baseFrame:SetMovable(true)
-  baseFrame:RegisterForDrag("LeftButton")
-  baseFrame:SetScript("OnDragStart", baseFrame.StartMoving)
-  baseFrame:SetScript("OnDragStop", baseFrame.StopMovingOrSizing)
+  BASE_FRAME:EnableMouse(true)
+  BASE_FRAME:SetMovable(true)
+  BASE_FRAME:RegisterForDrag("LeftButton")
+  BASE_FRAME:SetScript("OnDragStart", BASE_FRAME.StartMoving)
+  BASE_FRAME:SetScript("OnDragStop", BASE_FRAME.StopMovingOrSizing)
   --set default size and position
-  baseFrame:SetSize(250,210) -- width, height
-  baseFrame:SetPoint("CENTER",UIParent,"CENTER") -- point, relativeFrame, relativePoint, xOffset, yOffset
+  BASE_FRAME:SetSize(250,210) -- width, height
+  BASE_FRAME:SetPoint("CENTER",UIParent,"CENTER") -- point, relativeFrame, relativePoint, xOffset, yOffset
   -- set title
-  baseFrame.title = baseFrame:CreateFontString(nil,"OVERLAY")
-  baseFrame.title:SetFontObject("GameFontHighlight")
-  baseFrame.title:SetPoint("CENTER",baseFrame.TitleBg) -- ,"LEFT",5,0 last 3 make a margin between left and text
-  baseFrame.title:SetText("Cody's panel")
+  BASE_FRAME.title = BASE_FRAME:CreateFontString(nil,"OVERLAY")
+  BASE_FRAME.title:SetFontObject("GameFontHighlight")
+  BASE_FRAME.title:SetPoint("CENTER",BASE_FRAME.TitleBg) -- ,"LEFT",5,0 last 3 make a margin between left and text
+  BASE_FRAME.title:SetText("Cody's panel")
   -- defaul to hiding my info pane. The below hide is before the event handle is added, so should not trigger below.
-  baseFrame:Hide()
+  BASE_FRAME:Hide()
 end
 
 local function loadUserWindowPref()
@@ -44,26 +44,26 @@ local function loadUserWindowPref()
     CodyPanelShowBool=false
   end
   if CodyPanelShowBool then
-    baseFrame:Show()
+    BASE_FRAME:Show()
   end
 end
 
 local function update_money_val()
-  current_gold = GetMoney()
+  CURRENT_GOLD = GetMoney()
 end
 
 local function save_session_vals()
-  -- note, we are using current_gold here instead of GetMoney() because when this is called, the player's gold is gone and I need the last good value.
-  CodyPanelPrevNetGold = (current_gold - starting_gold) + CodyPanelPrevNetGold
-  CodyPanelPrevNetTime = (GetTime() - starting_time) + CodyPanelPrevNetTime
+  -- note, we are using CURRENT_GOLD here instead of GetMoney() because when this is called, the player's gold is gone and I need the last good value.
+  CodyPanelPrevNetGold = (CURRENT_GOLD - STARTING_GOLD) + CodyPanelPrevNetGold
+  CodyPanelPrevNetTime = (GetTime() - STARTING_TIME) + CodyPanelPrevNetTime
 end
 
 -- use /cody to open and close windows and it will update prefs
 local function toggle_window()
-  if baseFrame:IsVisible() then
-    baseFrame:Hide()
+  if BASE_FRAME:IsVisible() then
+    BASE_FRAME:Hide()
   else
-    baseFrame:Show()
+    BASE_FRAME:Show()
     CodyPanelShowBool=true
   end
 end
@@ -79,8 +79,8 @@ local function toggle_sound()
 end
 
 local function reset_session()
-  starting_gold = current_gold
-  starting_time = GetTime()
+  STARTING_GOLD = CURRENT_GOLD
+  STARTING_TIME = GetTime()
   CodyPanelPrevNetGold = 0
   CodyPanelPrevNetTime = 0
 end
@@ -88,46 +88,46 @@ end
 local function add_info()
   -- line calculation is -(15*n+15) where n is the line number and the output is the y offset
   -- 1st line
-  baseFrame.line1 = baseFrame:CreateFontString(nil,"OVERLAY")
-  baseFrame.line1:SetFontObject("GameFontHighlight")
-  baseFrame.line1:SetPoint("CENTER",baseFrame,"TOP",0,-30)
-  baseFrame.line1:SetText("speed")
+  BASE_FRAME.line1 = BASE_FRAME:CreateFontString(nil,"OVERLAY")
+  BASE_FRAME.line1:SetFontObject("GameFontHighlight")
+  BASE_FRAME.line1:SetPoint("CENTER",BASE_FRAME,"TOP",0,-30)
+  BASE_FRAME.line1:SetText("speed")
   -- 2nd line
-  baseFrame.line2 = baseFrame:CreateFontString(nil,"OVERLAY")
-  baseFrame.line2:SetFontObject("GameFontHighlight")
-  baseFrame.line2:SetPoint("CENTER",baseFrame,"TOP",0,-45)
-  baseFrame.line2:SetText("mount speed")
+  BASE_FRAME.line2 = BASE_FRAME:CreateFontString(nil,"OVERLAY")
+  BASE_FRAME.line2:SetFontObject("GameFontHighlight")
+  BASE_FRAME.line2:SetPoint("CENTER",BASE_FRAME,"TOP",0,-45)
+  BASE_FRAME.line2:SetText("mount speed")
   -- 3rd line
-  baseFrame.line3 = baseFrame:CreateFontString(nil,"OVERLAY")
-  baseFrame.line3:SetFontObject("GameFontHighlight")
-  baseFrame.line3:SetPoint("CENTER",baseFrame,"TOP",0,-60)
-  baseFrame.line3:SetText("net gold")
+  BASE_FRAME.line3 = BASE_FRAME:CreateFontString(nil,"OVERLAY")
+  BASE_FRAME.line3:SetFontObject("GameFontHighlight")
+  BASE_FRAME.line3:SetPoint("CENTER",BASE_FRAME,"TOP",0,-60)
+  BASE_FRAME.line3:SetText("net gold")
   -- 4th line
-  baseFrame.line4 = baseFrame:CreateFontString(nil,"OVERLAY")
-  baseFrame.line4:SetFontObject("GameFontHighlight")
-  baseFrame.line4:SetPoint("CENTER",baseFrame,"TOP",0,-75)
-  baseFrame.line4:SetText("session time")
+  BASE_FRAME.line4 = BASE_FRAME:CreateFontString(nil,"OVERLAY")
+  BASE_FRAME.line4:SetFontObject("GameFontHighlight")
+  BASE_FRAME.line4:SetPoint("CENTER",BASE_FRAME,"TOP",0,-75)
+  BASE_FRAME.line4:SetText("session time")
   -- 10th line
-  baseFrame.line10 = baseFrame:CreateFontString(nil,"OVERLAY")
-  baseFrame.line10:SetFontObject("GameFontHighlight")
-  baseFrame.line10:SetPoint("CENTER",baseFrame,"TOP",0,-165)
-  baseFrame.line10:SetText("wow uptime")
+  BASE_FRAME.line10 = BASE_FRAME:CreateFontString(nil,"OVERLAY")
+  BASE_FRAME.line10:SetFontObject("GameFontHighlight")
+  BASE_FRAME.line10:SetPoint("CENTER",BASE_FRAME,"TOP",0,-165)
+  BASE_FRAME.line10:SetText("wow uptime")
   -- 11th line
-  baseFrame.line11 = baseFrame:CreateFontString(nil,"OVERLAY")
-  baseFrame.line11:SetFontObject("GameFontHighlight")
-  baseFrame.line11:SetPoint("CENTER",baseFrame,"TOP",0,-180)
-  baseFrame.line11:SetText("fps")
+  BASE_FRAME.line11 = BASE_FRAME:CreateFontString(nil,"OVERLAY")
+  BASE_FRAME.line11:SetFontObject("GameFontHighlight")
+  BASE_FRAME.line11:SetPoint("CENTER",BASE_FRAME,"TOP",0,-180)
+  BASE_FRAME.line11:SetText("fps")
   -- 12th line
-  baseFrame.line12_1 = CreateFrame("Button",nil,baseFrame,"GameMenuButtonTemplate")
-  baseFrame.line12_1:SetPoint("CENTER",baseFrame,"TOP",-50,-195)
-  baseFrame.line12_1:SetText("Toggle Sound")
-  baseFrame.line12_1:SetScript("OnClick",toggle_sound)
-  baseFrame.line12_1:SetSize(100,15)
-  baseFrame.line12_2 = CreateFrame("Button",nil,baseFrame,"GameMenuButtonTemplate")
-  baseFrame.line12_2:SetPoint("CENTER",baseFrame,"TOP",50,-195)
-  baseFrame.line12_2:SetText("Reset Session")
-  baseFrame.line12_2:SetScript("OnClick",reset_session)
-  baseFrame.line12_2:SetSize(100,15)
+  BASE_FRAME.line12_1 = CreateFrame("Button",nil,BASE_FRAME,"GameMenuButtonTemplate")
+  BASE_FRAME.line12_1:SetPoint("CENTER",BASE_FRAME,"TOP",-50,-195)
+  BASE_FRAME.line12_1:SetText("Toggle Sound")
+  BASE_FRAME.line12_1:SetScript("OnClick",toggle_sound)
+  BASE_FRAME.line12_1:SetSize(100,15)
+  BASE_FRAME.line12_2 = CreateFrame("Button",nil,BASE_FRAME,"GameMenuButtonTemplate")
+  BASE_FRAME.line12_2:SetPoint("CENTER",BASE_FRAME,"TOP",50,-195)
+  BASE_FRAME.line12_2:SetText("Reset Session")
+  BASE_FRAME.line12_2:SetScript("OnClick",reset_session)
+  BASE_FRAME.line12_2:SetSize(100,15)
 end
 
 local function add_slash_cmds()
@@ -152,8 +152,8 @@ local function update_Info()
     local speed = GetUnitSpeed("player")
     local percent_speed = speed/BASE_MOVEMENT_SPEED*100
     local mount_speed = percent_speed - 100
-    local net_gold = (current_gold - starting_gold) + CodyPanelPrevNetGold
-    local net_time = (GetTime() - starting_time) + CodyPanelPrevNetTime
+    local net_gold = (CURRENT_GOLD - STARTING_GOLD) + CodyPanelPrevNetGold
+    local net_time = (GetTime() - STARTING_TIME) + CodyPanelPrevNetTime
     local wow_uptime = GetSessionTime()
     local frame_rate = GetFramerate()
     --fix strings
@@ -167,29 +167,29 @@ local function update_Info()
     frame_rate = string.format("%.2f", frame_rate)
     --update values
     -- line 1
-    baseFrame.line1:SetText(speed.." y/s : "..percent_speed.."% speed")
+    BASE_FRAME.line1:SetText(speed.." y/s : "..percent_speed.."% speed")
     -- line 2
     if(IsMounted()) then
-      baseFrame.line2:SetText("Mounted : "..mount_speed.."% mount speed")
+      BASE_FRAME.line2:SetText("Mounted : "..mount_speed.."% mount speed")
     else
-      baseFrame.line2:SetText("Not Mounted")
+      BASE_FRAME.line2:SetText("Not Mounted")
     end
     -- line 3
-    baseFrame.line3:SetText("Session net gold: "..net_gold)
+    BASE_FRAME.line3:SetText("Session net gold: "..net_gold)
     -- line 4
-    baseFrame.line4:SetText("Session time: "..net_time)
+    BASE_FRAME.line4:SetText("Session time: "..net_time)
     -- line 10
-    baseFrame.line10:SetText("WoW Uptime : "..wow_uptime)
+    BASE_FRAME.line10:SetText("WoW Uptime : "..wow_uptime)
     -- line 11
-    baseFrame.line11:SetText(frame_rate.." fps")
+    BASE_FRAME.line11:SetText(frame_rate.." fps")
 end
 
 -- update loop call on game refresh
 local function OnUpdate(self, elapsed)
-  TimeSinceLastUpdate = TimeSinceLastUpdate + elapsed
-  if (TimeSinceLastUpdate > UpdateInterval) then
+  TIME_SINCE_LAST_UPDATE = TIME_SINCE_LAST_UPDATE + elapsed
+  if (TIME_SINCE_LAST_UPDATE > UPDATE_INTERVAL) then
     update_Info()
-    TimeSinceLastUpdate = 0
+    TIME_SINCE_LAST_UPDATE = 0
   end
 end
 
@@ -208,16 +208,16 @@ end
 
 local function setupScripts()
   -- register client events and point to event switch
-  baseFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-  baseFrame:RegisterEvent("ADDON_LOADED")
-  baseFrame:RegisterEvent("PLAYER_LOGOUT")
-  baseFrame:RegisterEvent("PLAYER_MONEY")
-  baseFrame:SetScript("OnEvent",OnEvent)
+  BASE_FRAME:RegisterEvent("PLAYER_ENTERING_WORLD")
+  BASE_FRAME:RegisterEvent("ADDON_LOADED")
+  BASE_FRAME:RegisterEvent("PLAYER_LOGOUT")
+  BASE_FRAME:RegisterEvent("PLAYER_MONEY")
+  BASE_FRAME:SetScript("OnEvent",OnEvent)
   -- hide event
-  baseFrame:SetScript("OnHide",PanelHideEvent)
+  BASE_FRAME:SetScript("OnHide",PanelHideEvent)
   -- register the update only after everything is setup
   -- this points to my OnUpdate function above. I named this the same but did not have to.
-  baseFrame:SetScript("OnUpdate",OnUpdate)
+  BASE_FRAME:SetScript("OnUpdate",OnUpdate)
 end
 
 --- execute order starting here ---
