@@ -1,4 +1,4 @@
---Set blizzard frame to my pref. This for 1080p
+--Set blizzard frame to my pref. This has been tested 1080p and 1440p
 --Set player frame
 PlayerFrame:ClearAllPoints()
 PlayerFrame:SetPoint("BOTTOM",UIParent,-220,245)

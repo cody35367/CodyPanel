@@ -1,6 +1,6 @@
 -- This makes addon dev easier. 
 -- run /console scriptErrors 0 in game to turn on lua errors
- -- For quicker reloading
+-- For quicker reloading
 SLASH_RELOADUI1 = "/rl"
 SlashCmdList.RELOADUI = ReloadUI
 -- For quicker acces to frame stack
